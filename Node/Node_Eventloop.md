@@ -13,6 +13,8 @@
 			* [poll阶段](#poll阶段)
 			* [check阶段](#check阶段)
 			* [close callbacks阶段](#close-callbacks阶段)
+		* [4. setImmediate()和setTimeout()](#4-setimmediate和settimeout)
+		* [例子](#例子)
 	* [参考链接](#参考链接)
 
 <!-- /code_chunk_output -->
@@ -23,7 +25,7 @@
 
 Node.js 主要分为四大部分，Node Standard Library，Node Bindings，V8 引擎，Libuv(EventLoop)，架构图如下:
 
-![Node架构图](./assets/images/Node/Node_Common_1.png)
+![Node架构图](../assets/images/Node/Node_Common_1.png)
 
 - **Node Standard Library**: Node提供的基础类库，例如http,fs,buffer,net等。
 - **Node Bindings**: 负责JS与C++代码的沟通，封装V8引擎和Libuv库，给Node Standard Library提供API支持。
@@ -69,7 +71,7 @@ Node是基于Javascript实现的，但是Javascript本身是单线程的，并�
 
 Node将异步任务交给Libuv执行，Libuv本身是多线程的，可以将不同的异步任务放到不同的线程处理，在任务完成之后通知Javascript处理该任务对应的事件。
 
-![](./assets/images/Node/Event-loop/Node_Event_Loop1.png)
+![Node-Event-Loop](../assets/images/Node/Event-loop/Node_Event_Loop1.png)
 
 当一个Node应用启动之后，它会初始化Event Loop，V8引擎开始解析并执行js代码，遇到异步任务，将其放入到Event Loop执行，Event Loop会根据异步任务的类型，分发到不同的Libuv线程中执行。
 
@@ -142,8 +144,44 @@ poll阶段有两个主要功能：
 #### close callbacks阶段
 如果一个socket或者handle突然关闭（比如：socket.destory()），close事件就会被提交到这个阶段。否则它将会通过process.nextTick()触发。
 
+### 4. setImmediate()和setTimeout()
+setImmediate()和setTimeout()看起来比较相似，但是行为缺不相同，这取决于何时调用它们：
+- setImmediate()是在poll阶段结束后，进入check阶段时调用。
+- setTimeout()是在poll阶段空闲时，且timers中的定时器到期后调用。
 
+来看一段代码：
 ```javascript {.line-numbers}
+// timeout_vs_immediate.js
+setTimeout(() => {
+  console.log('timeout');
+}, 0);
+
+setImmediate(() => {
+  console.log('immediate');
+});
+```
+执行结果如下：
+```javascript
+$ node timeout_vs_immediate.js
+timeout
+immediate
+
+$ node timeout_vs_immediate.js
+immediate
+timeout
+```
+如果在主模块调用这两个方法，二者的执行顺序是不确定的，看图：
+![Node-Event-Loop](../assets/images/Node/Event-loop/Node_setTimeout_setImmediate.png)
+首先，Node源码中有个逻辑处理，setTimeout(fn, 0) => setTimeout(fn, 1)，也就是说，即便设置了timeout的最小等待时间为0ms，也会被node处理成等待1ms，这个是我们没法改变的。
+
+V8引擎解析执行js代码，将异步操作交由event loop处理，然后event loop将任务提交给cpu去执行。由于CPU是为整个操作系统服务器的，所以，CPU同时还可能在运行其他应用，在这样的条件下，就可能有两种情况发生：
+**Case 1**：当event loop申请CPU执行代码的时候，CPU正在执行其他应用的任务，event loop需要等待其他任务执行完成，100ms过去，event loop获得CPU资源，执行Poll阶段回调，我们代码中没有其他异步任务，所以Poll队列为空，按照Poll阶段执行逻辑，发现timers中有到期的定时器，执行setTimeout的回调，然后进入Poll阶段，Poll进入空闲状态，发现有setImmediate，进入check阶段执行setImmediate的回调。所以，setTimeout先于setImmediate执行。
+**Case 2**: 当event loop申请CPU执行代码的时候，CPU处于空闲状态，event loop立即获得CPU资源，执行Poll阶段代码，我们代码中没有其他异步任务，所以Poll队列为空，按照Poll阶段执行逻辑，检查timers中的定时器，发现没有到期的定时器，Poll进入空闲状态，发现有setImmediate，进入check阶段执行回调，执行完毕之后进入Poll阶段，等待其他I/O事件，并检查timers中的定时器是否到期，一旦timers中的定时器到期，立即执行setTimeout的回调。所以，setImmediate先于setTimeout执行。
+
+### 例子
+为了更好的理解上面各个阶段，我们来看下面的例子：
+```javascript {.line-numbers}
+/// 单纯的
 const fs = require('fs');
 
 function someAsyncOperation(callback) {
