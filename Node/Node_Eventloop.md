@@ -13,6 +13,8 @@
 			* [poll阶段](#poll阶段)
 			* [check阶段](#check阶段)
 			* [close callbacks阶段](#close-callbacks阶段)
+			* [更新Event Loop示意图](#更新event-loop示意图)
+			* [Event Loop总结示例图](#event-loop总结示例图)
 		* [4. setImmediate()和setTimeout()](#4-setimmediate和settimeout)
 		* [例子](#例子)
 	* [参考链接](#参考链接)
@@ -76,26 +78,7 @@ Node将异步任务交给Libuv执行，Libuv本身是多线程的，可以将不
 当一个Node应用启动之后，它会初始化Event Loop，V8引擎开始解析并执行js代码，遇到异步任务，将其放入到Event Loop执行，Event Loop会根据异步任务的类型，分发到不同的Libuv线程中执行。
 
 Event Loop分为六个阶段：
-```
-   ┌────────────────────────────────┐
-┌─>│        timers                  │
-│  └──────────┬─────────────────────┘
-│  ┌──────────┴─────────────────────┐
-│  │     I/O(pending) callbacks     │
-│  └──────────┬─────────────────────┘
-│  ┌──────────┴─────────────────────┐
-│  │     idle, prepare              │
-│  └──────────┬─────────────────────┘      ┌───────────────┐
-│  ┌──────────┴─────────────────────┐      │   incoming:   │
-│  │         poll                   │<─────┤  connections, │
-│  └──────────┬─────────────────────┘      │   data, etc.  │
-│  ┌──────────┴─────────────────────┐      └───────────────┘
-│  │        check                   │
-│  └──────────┬─────────────────────┘
-│  ┌──────────┴─────────────────────┐
-└──┤    close callbacks             │
-   └────────────────────────────────┘
-```
+![事件循环阶段示意图1](../assets/images/Node/Event-loop/Node_Event_Loop_Phases_1.png)
 每个阶段都有一个执行callback的FIFO队列，直到队列中的callback被清空或达到最多执行次数限制之后，才会进入下一个阶段。
 
 **阶段概述：**
@@ -128,13 +111,21 @@ poll阶段有两个主要功能：
 1. 当timers中的定时器到时后，执行指定的回调。
 2. 处理poll队列中的事件。
 
-当进入到poll阶段，timers队列中没有设置定时器。会发生下列两种情况之一：
+**当event loop进入到poll阶段且timers队列中没有设置定时器**。会发生下列两种情况之一：
 - 如果poll队列不为空，event loop会同步的迭代执行poll队列的回调，直到poll队列为空或者达到执行次数上限为止。
 - 如果poll队列为空，会发生下列两种情况之一：
   - 如果设置了setImmediate()，event loop会结束poll阶段，进入check阶段，执行相应的回调。
   - 如果没有设置setImmediate()，event loop会等待其他的回调被添加到poll队列，新添加的回调会立即执行。
 
-一旦poll队列为空，event loop将在timers队列中寻找到期的定时器，如果有一个或多个定时器到期，event loop会回到timers阶段执行到期的回调。
+**当event loop进入到poll阶段且timers队列中设置了定时器**，那么event loop将会在poll队列处于空闲状态时，查找timers队列中到期的回调，如果有一个或多个定时器到期，event loop会回到timers阶段执行回调。
+
+==注:上文中提到 "*当event loop进入到poll阶段且timers队列中没有设置定时器...*"，官方文档并没有明确说明 "*当event loop进入到poll阶段且timers队列中设置了定时器*"会怎样，但是官方文档间接的描述了一下，上面那段是我按照官方文档自己整理出来的。==
+```
+官方文档：
+Once the poll queue is empty the event loop will check for timers whose time
+thresholds have been reached. If one or more timers are ready, the event 
+loop will wrap back to the timers phase to execute those timers' callbacks.
+```
 
 #### check阶段
 一旦poll阶段完成，本阶段的队列中的回调会立即执行。
@@ -143,6 +134,12 @@ poll阶段有两个主要功能：
 
 #### close callbacks阶段
 如果一个socket或者handle突然关闭（比如：socket.destory()），close事件就会被提交到这个阶段。否则它将会通过process.nextTick()触发。
+
+#### 更新Event Loop示意图
+通过Event Loop阶段详情的学习，我们更新一下Event Loop的阶段结构图。
+![事件循环阶段示意图1](../assets/images/Node/Event-loop/Node_Event_Loop_Phases_2.png)
+
+#### Event Loop总结示例图
 
 ### 4. setImmediate()和setTimeout()
 setImmediate()和setTimeout()看起来比较相似，但是行为缺不相同，这取决于何时调用它们：
@@ -170,13 +167,40 @@ $ node timeout_vs_immediate.js
 immediate
 timeout
 ```
-如果在主模块调用这两个方法，二者的执行顺序是不确定的，看图：
+如果在==主模块调用==这两个方法，二者的执行顺序是不确定的，看图：
 ![Node-Event-Loop](../assets/images/Node/Event-loop/Node_setTimeout_setImmediate.png)
-首先，Node源码中有个逻辑处理，setTimeout(fn, 0) => setTimeout(fn, 1)，也就是说，即便设置了timeout的最小等待时间为0ms，也会被node处理成等待1ms，这个是我们没法改变的。
+首先，Node源码中有个逻辑处理，setTimeout(fn, 0) => setTimeout(fn, 1)，也就是说，即便设置了timeout的最小等待时间为0ms，也会被node处理成等待1ms。
 
 V8引擎解析执行js代码，将异步操作交由event loop处理，然后event loop将任务提交给cpu去执行。由于CPU是为整个操作系统服务器的，所以，CPU同时还可能在运行其他应用，在这样的条件下，就可能有两种情况发生：
 **Case 1**：当event loop申请CPU执行代码的时候，CPU正在执行其他应用的任务，event loop需要等待其他任务执行完成，100ms过去，event loop获得CPU资源，执行Poll阶段回调，我们代码中没有其他异步任务，所以Poll队列为空，按照Poll阶段执行逻辑，发现timers中有到期的定时器，执行setTimeout的回调，然后进入Poll阶段，Poll进入空闲状态，发现有setImmediate，进入check阶段执行setImmediate的回调。所以，setTimeout先于setImmediate执行。
 **Case 2**: 当event loop申请CPU执行代码的时候，CPU处于空闲状态，event loop立即获得CPU资源，执行Poll阶段代码，我们代码中没有其他异步任务，所以Poll队列为空，按照Poll阶段执行逻辑，检查timers中的定时器，发现没有到期的定时器，Poll进入空闲状态，发现有setImmediate，进入check阶段执行回调，执行完毕之后进入Poll阶段，等待其他I/O事件，并检查timers中的定时器是否到期，一旦timers中的定时器到期，立即执行setTimeout的回调。所以，setImmediate先于setTimeout执行。
+
+<br/>
+再来看另一段代码：
+```javascript {.line-numbers}
+// timeout_vs_immediate.js
+const fs = require('fs');
+
+fs.readFile(__filename, () => {
+  setTimeout(() => {
+    console.log('timeout');
+  }, 0);
+  setImmediate(() => {
+    console.log('immediate');
+  });
+});
+```
+执行结果如下：
+```javascript
+$ node timeout_vs_immediate.js
+immediate
+timeout
+
+$ node timeout_vs_immediate.js
+immediate
+timeout
+```
+
 
 ### 例子
 为了更好的理解上面各个阶段，我们来看下面的例子：
