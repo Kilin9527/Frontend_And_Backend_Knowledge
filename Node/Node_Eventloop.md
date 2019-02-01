@@ -5,9 +5,9 @@
 * [Node Event Loop 学习记录](#node-event-loop-学习记录)
 	* [一、Node 架构](#一-node-架构)
 	* [二、Event Loop](#二-event-loop)
-		* [1. 什么是事件(Event)](#1-什么是事件event)
-		* [2. 什么是Event Loop](#2-什么是event-loop)
-		* [3. 阶段细节](#3-阶段细节)
+		* [2.1. 什么是事件(Event)](#21-什么是事件event)
+		* [2.2 什么是Event Loop](#22-什么是event-loop)
+		* [2.3 阶段细节](#23-阶段细节)
 			* [Timers阶段](#timers阶段)
 			* [I/O(pending) Callbacks阶段](#iopending-callbacks阶段)
 			* [poll阶段](#poll阶段)
@@ -15,8 +15,8 @@
 			* [close callbacks阶段](#close-callbacks阶段)
 			* [更新Event Loop示意图](#更新event-loop示意图)
 			* [Event Loop总结示例图](#event-loop总结示例图)
-		* [4. setImmediate()和setTimeout()](#4-setimmediate和settimeout)
-		* [例子](#例子)
+		* [2.4 setImmediate()和setTimeout()](#24-setimmediate和settimeout)
+		* [5. process.nextTick()](#5-processnexttick)
 	* [参考链接](#参考链接)
 
 <!-- /code_chunk_output -->
@@ -47,7 +47,7 @@ Node.js 主要分为四大部分，Node Standard Library，Node Bindings，V8 �
 
 
 ## 二、Event Loop
-### 1. 什么是事件(Event)
+### 2.1. 什么是事件(Event)
 事件是一种可以被侦测到的行为，并且允许用户自定义处理该事件。例如：
 ```javascript {.line-numbers}
 // 设置一个定时器，在指定时间之后执行某个操作。
@@ -68,7 +68,7 @@ fs.readFile(path, () => {
 ```
 可以观察到所有事件的处理都是在回调函数中进行的，所以，***Event Loop主要处理任务是管理这些回调函数的执行顺序***，理解Event Loop可以帮助我们写出更加可靠的代码。
 
-### 2. 什么是Event Loop
+### 2.2 什么是Event Loop
 Node是基于Javascript实现的，但是Javascript本身是单线程的，并不支持多线程，一旦遇到大量耗时任务阻塞了Javascript，那将是一场灾难。为了解决这个问题，Node使用了一种叫做Event Loop的技术，Node将这些耗时的，会阻塞Javascript线程的任务交由Event Loop来处理，当Event Loop处理完成之后，通知Javascript处理该事件对应的回调。这样，Node就拥有了多线程处理事件的能力。
 
 Node将异步任务交给Libuv执行，Libuv本身是多线程的，可以将不同的异步任务放到不同的线程处理，在任务完成之后通知Javascript处理该任务对应的事件。
@@ -92,7 +92,7 @@ Event Loop分为六个阶段：
 5. **check**：执行setImeediate的回调。
 6. **close callbacks**：一些close callbacks。例如socket.on('close', ...)。
 
-### 3. 阶段细节
+### 2.3 阶段细节
 #### Timers阶段 
 定时器会指定执行回调的等待时间，一旦到期，timers会尽可能早一点执行定时器的回调，这个“早”是相对的，取决于操作系统当前执行的任务，分两种情况：
 *假设定时器设置的等待时间为x*
@@ -141,7 +141,7 @@ loop will wrap back to the timers phase to execute those timers' callbacks.
 
 #### Event Loop总结示例图
 
-### 4. setImmediate()和setTimeout()
+### 2.4 setImmediate()和setTimeout()
 setImmediate()和setTimeout()看起来比较相似，但是行为缺不相同，这取决于何时调用它们：
 - setImmediate()是在poll阶段结束后，进入check阶段时调用。
 - setTimeout()是在poll阶段空闲时，且timers中的定时器到期后调用。
@@ -168,7 +168,7 @@ immediate
 timeout
 ```
 如果在==主模块调用==这两个方法，二者的执行顺序是不确定的，看图：
-![Node-Event-Loop](../assets/images/Node/Event-loop/Node_setTimeout_setImmediate.png)
+![timeout vs immediate 1](../assets/images/Node/Event-loop/Node_setTimeout_setImmediate_1.png)
 首先，Node源码中有个逻辑处理，setTimeout(fn, 0) => setTimeout(fn, 1)，也就是说，即便设置了timeout的最小等待时间为0ms，也会被node处理成等待1ms。
 
 V8引擎解析执行js代码，将异步操作交由event loop处理，然后event loop将任务提交给cpu去执行。由于CPU是为整个操作系统服务器的，所以，CPU同时还可能在运行其他应用，在这样的条件下，就可能有两种情况发生：
@@ -200,39 +200,18 @@ $ node timeout_vs_immediate.js
 immediate
 timeout
 ```
+这段代码和上面唯一不同的地方就是setTimeout和setImmediate都是在一个异步回调中被解析执行，执行的过程看下图:
+![timeout vs immediate 2](../assets/images/Node/Event-loop/Node_setTimeout_setImmediate_2.png)
+解析:
+- step1：V8解析执行readFile代码，由于readFile是一个异步函数，所以readFile的回调函数会被放入到Poll队列执行。
+- step2：当代码执行到Poll阶段时，如果readFile已经完成，则会执行readFile的回调函数。
+- step3：执行readFile的回调函数，将setTimeout放入到timers队列当中，将setImmediate放入到check阶段。
+- step4：readFile的回调函数执行完毕，此时Poll队列为空，根据阶段详情中的[poll阶段](#poll阶段)的逻辑：当Poll队列为空时，查看设置了setImmediate，所以先进入check阶段，执行setImmediate。
+- step5：执行完setImmediate，会进入timers阶段，然后执行setTimeout。
+所以，==在异步回调中设置的setImmediate永远会早于setTimeout执行==。
 
+### 2.5 process.nextTick()
 
-### 例子
-为了更好的理解上面各个阶段，我们来看下面的例子：
-```javascript {.line-numbers}
-/// 单纯的
-const fs = require('fs');
-
-function someAsyncOperation(callback) {
-  // Assume this takes 95ms to complete
-  fs.readFile('/path/to/file', callback);
-}
-
-const timeoutScheduled = Date.now();
-
-setTimeout(() => {
-  const delay = Date.now() - timeoutScheduled;
-
-  console.log(`${delay}ms have passed since I was scheduled`);
-}, 100);
-
-
-// do someAsyncOperation which takes 95 ms to complete
-someAsyncOperation(() => {
-  const startCallback = Date.now();
-
-  // do something that will take 10ms...
-  while (Date.now() - startCallback < 10) {
-    // do nothing
-  }
-});
-// 111ms have passed since I was scheduled
-```
 ## 参考链接
 https://github.com/yjhjstz/deep-into-node/blob/master/chapter1/chapter1-0.md
 https://segmentfault.com/a/1190000017893482#articleHeader4
