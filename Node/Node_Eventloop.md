@@ -16,7 +16,11 @@
 			* [更新Event Loop示意图](#更新event-loop示意图)
 			* [Event Loop总结示例图](#event-loop总结示例图)
 		* [2.4 setImmediate()和setTimeout()](#24-setimmediate和settimeout)
-		* [5. process.nextTick()](#5-processnexttick)
+		* [2.5 process.nextTick()](#25-processnexttick)
+			* [什么是process.nextTick()](#什么是processnexttick)
+			* [process.nextTick()为什么会被允许存在，有什么用？](#processnexttick为什么会被允许存在有什么用)
+		* [2.6 process.nextTick() 和 setImmediate()](#26-processnexttick-和-setimmediate)
+		* [2.7为什么要使用process.nextTick()？](#27为什么要使用processnexttick)
 	* [参考链接](#参考链接)
 
 <!-- /code_chunk_output -->
@@ -211,7 +215,90 @@ timeout
 所以，==在异步回调中设置的setImmediate永远会早于setTimeout执行==。
 
 ### 2.5 process.nextTick()
+#### 什么是process.nextTick()
+* process.nextTick()是一个异步的API，参数接收一个回调函数。
+* process.nextTick()不属于Event Loop的任何一部分，它有自己的队列：nextTickQueue。
+* 在Event Loop的每个阶段完成之后，下一个阶段开始之前，都会检查一下nextTickQueue是否为空，如果不为空，node会顺序执行nextTickQueue里的每一个任务，直到==清空nextTickQueue队列==，Event Loop才会进入到下一个阶段。
+* process.nextTick()允许递归调用，递归调用process.nextTick()任务会导致Event Loop无法进入到下一个阶段，无法处理其他I/O事件，从而阻塞Event Loop，这种情况被称为"starve" I/O。
+#### process.nextTick()为什么会被允许存在，有什么用？
+因为Node的设计理念：API应该始终是异步的即使有些地方是没必要的。
+通过process.nextTick()可以保证回调总是在其他同步代码运行完成自后才会调用。
+看个例子：
+```javascript {.line-numbers}
+let bar;
+
+// this has an asynchronous signature, but calls callback synchronously
+function someAsyncApiCall(callback) { callback(); }
+
+// the callback is called before `someAsyncApiCall` completes.
+someAsyncApiCall(() => {
+
+  // since someAsyncApiCall has completed, bar hasn't been assigned any value
+  console.log('bar', bar); // undefined
+
+});
+
+bar = 1;
+
+// 输出结果： bar undefined
+```
+用户定义了一个异步签名的函数someAsyncApiCall()，但实际上操作是同步的。当它被调用时，其回调也在event loop中的同一阶段被调用了，因为someAsyncApiCall()实际上并没有任何异步动作。结果，在代码还没有执行到bar初始化的时候，就去访问变量bar，从而导致错误发生。
+
+用process.nextTick()改造一下上面的代码：
+
+```javascript {.line-numbers}
+let bar;
+
+function someAsyncApiCall(callback) {
+  process.nextTick(callback);
+}
+
+someAsyncApiCall(() => {
+  console.log('bar', bar);
+});
+
+bar = 1;
+
+// 输出结果： bar 1
+```
+通过将callback放入到process.nextTick()中，脚本可以全部执行完成，使函数和变量先于回调函数执行。同时还能阻止event loop继续执行。
+
+这是一个实际的例子：
+```javascript {.line-numbers}
+const server = net.createServer(() => {}).listen(8080);
+
+server.on('listening', () => {});
+```
+当只有一个端口作为参数传入，端口会被立即绑定。所以监听回调可能被立即调用。问题是：on('listening') 回调在那时还没被注册。
+
+为了解决这个问题，把listening事件加入到nextTick()队列，让脚本中的所有代码全部执行完，让用户可以设置任何他们需要的事件处理函数，然后再去执行listening事件。
+
+### 2.6 process.nextTick() 和 setImmediate()
+* process.nextTick()在Event Loop每一个阶段结束时调用。
+* setImmediate()在进入到Check阶段时调用。
+
+建议开发者在所有情况中使用setImmediate()，因为这可以让你的代码兼容更多的环境。
+
+### 2.7为什么要使用process.nextTick()？
+有两个主要原因：
+1. 允许用户处理错误，回收资源，在下一个event loop阶段之前重新发送请求等。
+2. 有时需要允许回调*在调用栈展开之后，事件循环继续之前*运行。
+看一下这个例子：
+```javascript {.line-numbers}
+const server = net.createServer();
+server.on('connection', (conn) => { });
+
+server.listen(8080);
+server.on('listening', () => { });
+```
+假设listen()在event loop之前运行，但是监听(listening)的回调放置在setImmediate中。传递给listen()的如果是端口号，会立即绑定，绑定后listening监听的回调会立即执行（如果是hostname，不会立即绑定）。
+
 
 ## 参考链接
+https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/
 https://github.com/yjhjstz/deep-into-node/blob/master/chapter1/chapter1-0.md
 https://segmentfault.com/a/1190000017893482#articleHeader4
+https://segmentfault.com/a/1190000017920493#articleHeader10
+https://www.jianshu.com/p/2a7ac1b3b382
+https://www.cnblogs.com/yzfdjzwl/p/8182749.html
+https://cnodejs.org/topic/57d68794cb6f605d360105bf
