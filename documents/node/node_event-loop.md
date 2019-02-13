@@ -375,6 +375,21 @@ process.nextTick(function() {
 ```javascript
 tick1, tick4, tick5, tick2, tick3, resolve1, resolve2, resolve3
 ```
+执行顺序：
+1. 解析并执行js代码。
+2. js代码执行到第一行，将promise放入microtask队列。
+3. js代码执行到第五行，将nexttick放入nextTickQueue。
+4. js代码执行到第十五行，将promise放入microtask队列。
+5. js代码执行到第十九行，将nexttick放入nextTickQueue。
+6. js代码执行到第二十四行，将promise放入microtask队列。
+7. js代码执行到第二十八行，将nexttick放入nextTickQueue。
+8. 此时microtask队列有三个任务，nextTickQueue有三个任务，js代码执行完毕，开始event loop阶段。
+9. nextTickQueue比microtask队列的优先级高，先执行nextTickQueue中的所有任务。
+10. 输出tick1，将第一个nextTick回调中的两个新的nextTick添加到nextTickQueue中。继续执行nextTickQueue，分别输出tick4, tick5, tick2, tick3。nextTickQueue执行完毕。
+11. 执行MicroTask队列中的任务，输出resolve1, resolve2, resolve3。
+
+
+
 ## 参考链接
 https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/
 https://github.com/yjhjstz/deep-into-node/blob/master/chapter1/chapter1-0.md
