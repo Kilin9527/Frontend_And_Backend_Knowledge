@@ -20,7 +20,8 @@
 			* [process.nextTick()为什么会被允许存在，有什么用？](#processnexttick为什么会被允许存在有什么用)
 		* [2.6 process.nextTick() 和 setImmediate()](#26-processnexttick-和-setimmediate)
 		* [2.7为什么要使用process.nextTick()？](#27为什么要使用processnexttick)
-	* [三、宏任务(MacroTask)和微任务(MicroTask)](#三-宏任务macrotask和微任务microtask)
+	* [三、Node中的宏任务(MacroTask)和微任务(MicroTask)](#三-node中的宏任务macrotask和微任务microtask)
+	* [四、总结](#四-总结)
 	* [参考链接](#参考链接)
 
 <!-- /code_chunk_output -->
@@ -31,7 +32,9 @@
 
 Node.js 主要分为四大部分，Node Standard Library，Node Bindings，V8 引擎，Libuv(EventLoop)，架构图如下:
 
-![Node架构图](../../assets/images/node/Node_Common_1.png)
+<!-- ![Node架构图](../../assets/images/node/Node_Common_1.png) -->
+![Node架构图](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/assets/images/Node/Node_Common_1.png?raw=true)
+
 
 - **Node Standard Library**: Node提供的基础类库，例如http,fs,buffer,net等。
 - **Node Bindings**: 负责JS与C++代码的沟通，封装V8引擎和Libuv库，给Node Standard Library提供API支持。
@@ -76,13 +79,15 @@ fs.readFile(path, () => {
 Node是基于Javascript实现的，但是Javascript本身是单线程的，并不支持多线程，一旦遇到大量耗时任务阻塞了Javascript，那将是一场灾难。为了解决这个问题，Node使用了一种叫做Event Loop的技术，Node将这些耗时的，会阻塞Javascript线程的任务交由Event Loop来处理，当Event Loop处理完成之后，通知Javascript处理该事件对应的回调。这样，Node就拥有了多线程处理事件的能力。
 
 Node将异步任务交给Libuv执行，Libuv本身是多线程的，可以将不同的异步任务放到不同的线程处理，在任务完成之后通知Javascript处理该任务对应的事件。
-
-![Node-Event-Loop](../../assets/images/node/Event-loop/Node_Event_Loop1.png)
+<!-- ![Node-Event-Loop](../../assets/images/node/Event-loop/Node_Event_Loop1.png) -->
+![Node-Event-Loop](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/assets/images/Node/Event-loop/Node_Event_Loop1.png?raw=true)
 
 当一个Node应用启动之后，它会初始化Event Loop，V8引擎开始解析并执行js代码，遇到异步任务，将其放入到Event Loop执行，Event Loop会根据异步任务的类型，分发到不同的Libuv线程中执行。
 
 Event Loop分为六个阶段：
-![事件循环阶段示意图1](../../assets/images/node/Event-loop/Node_Event_Loop_Phases_1.png)
+<!-- ![事件循环阶段示意图1](../../assets/images/node/Event-loop/Node_Event_Loop_Phases_1.png) -->
+![事件循环阶段示意图1](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/assets/images/Node/Event-loop/Node_Event_Loop_Phases_1.png?raw=true)
+
 每个阶段都有一个执行callback的FIFO队列，直到队列中的callback被清空或达到最多执行次数限制之后，才会进入下一个阶段。
 
 **阶段概述：**
@@ -141,7 +146,8 @@ loop will wrap back to the timers phase to execute those timers' callbacks.
 
 #### 更新Event Loop示意图
 通过Event Loop阶段详情的学习，我们更新一下Event Loop的阶段结构图。
-![事件循环阶段示意图1](../../assets/images/node/Event-loop/Node_Event_Loop_Phases_2.png)
+<!-- ![事件循环阶段示意图1](../../assets/images/node/Event-loop/Node_Event_Loop_Phases_2.png) -->
+![事件循环阶段示意图1](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/assets/images/Node/Event-loop/Node_Event_Loop_Phases_2.png?raw=true)
 
 ### 2.4 setImmediate()和setTimeout()
 setImmediate()和setTimeout()看起来比较相似，但是行为缺不相同，这取决于何时调用它们：
@@ -170,7 +176,8 @@ immediate
 timeout
 ```
 如果在==主模块调用==这两个方法，二者的执行顺序是不确定的，看图：
-![timeout vs immediate 1](../../assets/images/node/Event-loop/Node_setTimeout_setImmediate_1.png)
+<!-- ![timeout vs immediate 1](../../assets/images/node/Event-loop/Node_setTimeout_setImmediate_1.png) -->
+![timeout vs immediate 1](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/assets/images/Node/Event-loop/Node_setTimeout_setImmediate_1.png?raw=true)
 首先，Node源码中有个逻辑处理，setTimeout(fn, 0) => setTimeout(fn, 1)，也就是说，即便设置了timeout的最小等待时间为0ms，也会被node处理成等待1ms。
 
 V8引擎解析执行js代码，将异步操作交由event loop处理，然后event loop将任务提交给cpu去执行。由于CPU是为整个操作系统服务器的，所以，CPU同时还可能在运行其他应用，在这样的条件下，就可能有两种情况发生：
@@ -203,7 +210,8 @@ immediate
 timeout
 ```
 这段代码和上面唯一不同的地方就是setTimeout和setImmediate都是在一个异步回调中被解析执行，执行的过程看下图:
-![timeout vs immediate 2](../../assets/images/node/Event-loop/Node_setTimeout_setImmediate_2.png)
+<!-- ![timeout vs immediate 2](../../assets/images/node/Event-loop/Node_setTimeout_setImmediate_2.png) -->
+![timeout vs immediate 2](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/assets/images/Node/Event-loop/Node_setTimeout_setImmediate_2.png?raw=true)
 解析:
 - step1：V8解析执行readFile代码，由于readFile是一个异步函数，所以readFile的回调函数会被放入到Poll队列执行。
 - step2：当代码执行到Poll阶段时，如果readFile已经完成，则会执行readFile的回调函数。
@@ -326,12 +334,13 @@ server.on('listening', () => { });
 假设listen()在event loop之前运行，但是listening事件的回调放置在setImmediate()中。当传递给listen()的参数是端口号，会立即绑定(如果参数是hostname，不会立即绑定)。
 随着event loop的进行，必然后进入到poll阶段，这意味着存在一种可能：在listening事件之前触发了connection事件。
 
-## 三、宏任务(MacroTask)和微任务(MicroTask)
+## 三、Node中的宏任务(MacroTask)和微任务(MicroTask)
 宏任务(MacroTask)指的是第二章当中提到的异步回调，包括setTimeout，setInterval，setImmediate等。
 微任务(MicroTask)在大部分情况下是指Promise的then回调。
 在Node中，除了宏任务和微任务，还有一个独立于event loop之外的nextTickQueue。
 这三者之间的关系如图：
-![宏任务，微任务和nextTickQueue](../../assets/images/node/event-loop/Node_Event_Loop_Phases_3.png)
+<!-- ![宏任务，微任务和nextTickQueue](../../assets/images/node/event-loop/Node_Event_Loop_Phases_3.png) -->
+![宏任务，微任务和nextTickQueue](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/assets/images/Node/Event-loop/Node_Event_Loop_Phases_3.png?raw=true)
 * 1. 在每个event loop阶段之间，会清理nextTickQueue中的所有任务。
 * 2. 在每个event loop阶段之间，会清理微任务队列中的所有任务。
 * 3. nextTickQueue早于MicroTask队列执行。
@@ -388,7 +397,11 @@ tick1, tick4, tick5, tick2, tick3, resolve1, resolve2, resolve3
 10. 输出tick1，将第一个nextTick回调中的两个新的nextTick添加到nextTickQueue中。继续执行nextTickQueue，分别输出tick4, tick5, tick2, tick3。nextTickQueue执行完毕。
 11. 执行MicroTask队列中的任务，输出resolve1, resolve2, resolve3。
 
-
+## 四、总结
+* Node的高性能，非阻塞的特性是通过event loop实现的。
+* event loop分为六个阶段，每个阶段都有自己的队列执行特定类型的任务。
+* 在每个阶段过渡期间，会检查并清空nextTickQueue和MicroTask队列。
+* Node中的宏任务和微任务。
 
 ## 参考链接
 https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/
