@@ -128,7 +128,7 @@ poll阶段有两个主要功能：
 
 **当event loop进入到poll阶段且timers队列中设置了定时器**，那么event loop将会在poll队列处于空闲状态时，查找timers队列中到期的回调，如果有一个或多个定时器到期，event loop会回到timers阶段执行回调。
 
-==注:上文中提到 "*当event loop进入到poll阶段且timers队列中没有设置定时器...*"，官方文档并没有明确说明 "*当event loop进入到poll阶段且timers队列中设置了定时器*"会怎样，但是官方文档间接的描述了一下，上面那段是我按照官方文档自己整理出来的。==
+注:上文中提到 "*当event loop进入到poll阶段且timers队列中没有设置定时器...*"，官方文档并没有明确说明 "*当event loop进入到poll阶段且timers队列中设置了定时器*"会怎样，但是官方文档间接的描述了一下，上面那段是我按照官方文档自己整理出来的。
 ```
 官方文档：
 Once the poll queue is empty the event loop will check for timers whose time
@@ -175,7 +175,7 @@ $ node timeout_vs_immediate.js
 immediate
 timeout
 ```
-如果在==主模块调用==这两个方法，二者的执行顺序是不确定的，看图：
+如果在主模块调用这两个方法，二者的执行顺序是不确定的，看图：
 <!-- ![timeout vs immediate 1](../../assets/images/node/Event-loop/Node_setTimeout_setImmediate_1.png) -->
 ![timeout vs immediate 1](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/assets/images/Node/Event-loop/Node_setTimeout_setImmediate_1.png?raw=true)
 首先，Node源码中有个逻辑处理，setTimeout(fn, 0) => setTimeout(fn, 1)，也就是说，即便设置了timeout的最小等待时间为0ms，也会被node处理成等待1ms。
@@ -184,7 +184,6 @@ V8引擎解析执行js代码，将异步操作交由event loop处理，然后eve
 **Case 1**：当event loop申请CPU执行代码的时候，CPU正在执行其他应用的任务，event loop需要等待其他任务执行完成，100ms过去，event loop获得CPU资源，执行Poll阶段回调，我们代码中没有其他异步任务，所以Poll队列为空，按照Poll阶段执行逻辑，发现timers中有到期的定时器，执行setTimeout的回调，然后进入Poll阶段，Poll进入空闲状态，发现有setImmediate，进入check阶段执行setImmediate的回调。所以，setTimeout先于setImmediate执行。
 **Case 2**: 当event loop申请CPU执行代码的时候，CPU处于空闲状态，event loop立即获得CPU资源，执行Poll阶段代码，我们代码中没有其他异步任务，所以Poll队列为空，按照Poll阶段执行逻辑，检查timers中的定时器，发现没有到期的定时器，Poll进入空闲状态，发现有setImmediate，进入check阶段执行回调，执行完毕之后进入Poll阶段，等待其他I/O事件，并检查timers中的定时器是否到期，一旦timers中的定时器到期，立即执行setTimeout的回调。所以，setImmediate先于setTimeout执行。
 
-<br/>
 再来看另一段代码：
 ```javascript {.line-numbers}
 // timeout_vs_immediate.js
@@ -199,7 +198,9 @@ fs.readFile(__filename, () => {
   });
 });
 ```
+
 执行结果如下：
+
 ```javascript
 $ node timeout_vs_immediate.js
 immediate
@@ -218,13 +219,13 @@ timeout
 - step3：执行readFile的回调函数，将setTimeout放入到timers队列当中，将setImmediate放入到check阶段。
 - step4：readFile的回调函数执行完毕，此时Poll队列为空，根据阶段详情中的[poll阶段](#poll阶段)的逻辑：当Poll队列为空时，查看设置了setImmediate，所以先进入check阶段，执行setImmediate。
 - step5：执行完setImmediate，会进入timers阶段，然后执行setTimeout。
-所以，==在异步回调中设置的setImmediate永远会早于setTimeout执行==。
+所以，在异步回调中设置的setImmediate永远会早于setTimeout执行。
 
 ### 2.5 process.nextTick()
 #### 什么是process.nextTick()
 * process.nextTick()是一个异步的API，参数接收一个回调函数。
 * process.nextTick()不属于Event Loop的任何一部分，它有自己的队列：nextTickQueue。
-* 在Event Loop的每个阶段完成之后，下一个阶段开始之前，都会检查一下nextTickQueue是否为空，如果不为空，node会顺序执行nextTickQueue里的每一个任务，直到==清空nextTickQueue队列==，Event Loop才会进入到下一个阶段。
+* 在Event Loop的每个阶段完成之后，下一个阶段开始之前，都会检查一下nextTickQueue是否为空，如果不为空，node会顺序执行nextTickQueue里的每一个任务，直到清空nextTickQueue队列，Event Loop才会进入到下一个阶段。
 * process.nextTick()允许递归调用，递归调用process.nextTick()任务会导致Event Loop无法进入到下一个阶段，无法处理其他I/O事件，从而阻塞Event Loop，这种情况被称为"starve" I/O。
 #### process.nextTick()为什么会被允许存在，有什么用？
 因为Node的设计理念：API应该始终是异步的即使有些地方是没必要的。
@@ -341,11 +342,11 @@ server.on('listening', () => { });
 这三者之间的关系如图：
 <!-- ![宏任务，微任务和nextTickQueue](../../assets/images/node/event-loop/Node_Event_Loop_Phases_3.png) -->
 ![宏任务，微任务和nextTickQueue](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/assets/images/Node/Event-loop/Node_Event_Loop_Phases_3.png?raw=true)
-* 1. 在每个event loop阶段之间，会清理nextTickQueue中的所有任务。
-* 2. 在每个event loop阶段之间，会清理微任务队列中的所有任务。
-* 3. nextTickQueue早于MicroTask队列执行。
-* 4. 如果在处理nextTickQueue过程中遇到新的nextTick，name新的nextTick会被添加到当前的nextTickQueue中继续执行。
-* 5. 基于上面第四条，不要递归调用nextTick，这样会导致I/O事件不能及时处理，发生I/O starvation现象。
+* 在每个event loop阶段之间，会清理nextTickQueue中的所有任务。
+* 在每个event loop阶段之间，会清理微任务队列中的所有任务。
+* nextTickQueue早于MicroTask队列执行。
+* 如果在处理nextTickQueue过程中遇到新的nextTick，name新的nextTick会被添加到当前的nextTickQueue中继续执行。
+* 基于上面第四条，不要递归调用nextTick，这样会导致I/O事件不能及时处理，发生I/O starvation现象。
 
 来看一个例子：
 ```javascript {.line-numbers}
