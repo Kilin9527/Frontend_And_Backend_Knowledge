@@ -44,8 +44,8 @@ var someFunc = require('test');
 
 ## 二、module和require详解
 Node模块分为两大类别，核心模块和文件模块，如图：
-
-![Node_模块_1](../../assets/images/node/module&require/Node_Module&require.png)
+<!-- ![Node_模块_1](../../assets/images/node/module&require/Node_Module&require.png) -->
+![Node_模块_1](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/assets/images/Node/module&require/Node_Module&require.png?raw=true)
 
 **核心模块**：由官方提供的模块，代码被编译成了二进制代码，可以直接通过require获取到，例如：fs，http，net等。在node启动时，部分核心模块就被加载到内存当中，由于省略的文件定位和编译执行这两个步骤，所以核心模块的加载速度最快，如果其他非核心模块与核心模块名称冲突，会优先引用核心模块。
 核心模块由三部分组成：
@@ -130,7 +130,8 @@ function nativeModuleRequire(id) {
 
 ### 2. 模块路径分析和文件定位
 上一节介绍了模块加载顺序，这一节来看看模块是如何定位的，先看一张图：
-![模块加载优先级](../../assets/images/node/module&require/Node_Module&require_Priority_1.png)
+<!-- ![模块加载优先级](../../assets/images/node/module&require/Node_Module&require_Priority_1.png) -->
+![模块加载优先级](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/assets/images/Node/module&require/Node_Module&require_Priority_1.png?raw=true)
 当require()一个模块的时候，会从缓存中查找模块，如果不存在，判断请求的模块是否是原生模块，如果不是原生模块，则会把请求的模块当成文件模块来加载，文件模块的加载需要进行路径分析和文件定位。
 
 #### 路径分析：相对路径文件定位
