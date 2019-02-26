@@ -2,5 +2,5 @@
 Used to record knowledge about frontend and backend.
 
 ## Node 
-* [Module * Require](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/node/node_module%26require.md)
+* [Module](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/node/node_module%26require.md)
 * [Event Loop](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/node/node_event-loop.md)
