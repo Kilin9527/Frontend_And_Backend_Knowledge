@@ -4,6 +4,9 @@
 <!-- code_chunk_output -->
 
 * [Template Engine 模板引擎](#template-engine-模板引擎)
+* [Error Handling 错误处理](#error-handling-错误处理)
+		* [Catching Errors](#catching-errors)
+		* [The default error handler](#the-default-error-handler)
 
 <!-- /code_chunk_output -->
 
@@ -36,3 +39,45 @@ app.get('/', function (req, res) {
 ```
 当你请求'/'路径时，index.pug文件会被渲染成HTML发送到客户端。
 每一次请求都会重新绘制HTML页面，模板引擎并不会缓存绘制好的HTML页面，如果有需要，用户需要自己缓存该页面。
+
+# Error Handling 错误处理
+### Catching Errors
+Express的路由和中间件发生的同步错误不需要额外的操作，express会自动捕获并处理该错误。
+```javascript {.line-numbers}
+app.get("/", function (req, res) {
+  throw new Error("BROKEN");
+});
+
+// Express捕获的错误如下：
+Error: BROKEN
+    at C:\Users\Kilin\Desktop\NodeTest\kilin.js:21:9
+    at Layer.handle [as handle_request] (C:\Users\Kilin\Desktop\NodeTest\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Kilin\Desktop\NodeTest\node_modules\express\lib\router\route.js:137:13)
+    at Route.dispatch (C:\Users\Kilin\Desktop\NodeTest\node_modules\express\lib\router\route.js:112:3)
+    at Layer.handle [as handle_request] (C:\Users\Kilin\Desktop\NodeTest\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Kilin\Desktop\NodeTest\node_modules\express\lib\router\index.js:281:22
+    at Function.process_params (C:\Users\Kilin\Desktop\NodeTest\node_modules\express\lib\router\index.js:335:12)
+    at next (C:\Users\Kilin\Desktop\NodeTest\node_modules\express\lib\router\index.js:275:10)
+    at expressInit (C:\Users\Kilin\Desktop\NodeTest\node_modules\express\lib\middleware\init.js:40:5)
+    at Layer.handle [as handle_request] (C:\Users\Kilin\Desktop\NodeTest\node_modules\express\lib\router\layer.js:95:5)
+```
+
+Express的路由和中间件发生的异步错误需要传递给next(error)方法，然后express才会处理该错误。
+```javascript {.line-numbers}
+app.get("/", function(req, res, next) {
+  fs.readFile("./file-does-not-exist", function(err, data) {
+    if (err) {
+      next(err);
+    } else {
+      res.send(data);
+    }
+  });
+});
+
+// Express捕获的错误如下：
+Error: ENOENT: no such file or directory, open 'C:\Users\Kilin\Desktop\NodeTest\file-does-not-exist'
+```
+
+尽量使用Promise代替try...catch来捕获异步错误。
+
+### The default error handler
