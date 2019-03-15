@@ -7,6 +7,7 @@
 * [Error Handling 错误处理](#error-handling-错误处理)
 		* [Catching Errors](#catching-errors)
 		* [The default error handler](#the-default-error-handler)
+		* [Writing error handlers](#writing-error-handlers)
 
 <!-- /code_chunk_output -->
 
@@ -81,3 +82,13 @@ Error: ENOENT: no such file or directory, open 'C:\Users\Kilin\Desktop\NodeTest\
 尽量使用Promise代替try...catch来捕获异步错误。
 
 ### The default error handler
+Express有一个默认的的内置错误处理中间件，处于中间件栈的尾部。如果一个错误事件没有被其他中间件处理，那么内置的错误处理中间件会捕获它，并将该错误写入堆栈轨迹中（堆栈轨迹仅在开发环境有效）。
+
+### Writing error handlers
+错误处理中间件与其他的中间件一样，只是多了一个error参数。
+```javascript {.line-numbers}
+app.use(function (err, req, res, next) {
+  console.error(err.stack)
+  res.status(500).send('Something broke!')
+})
+```
