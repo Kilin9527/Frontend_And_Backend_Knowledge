@@ -199,5 +199,5 @@ json文件的编译是3种文件模块编译方式中最简单的。Node利用fs
 
 
 ## 参考链接
-https://github.com/yjhjstz/deep-into-node/blob/master/chapter2/chapter2-2.md
-https://cloud.tencent.com/developer/article/1005768
+1. https://github.com/yjhjstz/deep-into-node/blob/master/chapter2/chapter2-2.md
+2. https://cloud.tencent.com/developer/article/1005768

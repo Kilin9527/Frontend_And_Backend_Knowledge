@@ -405,10 +405,10 @@ tick1, tick4, tick5, tick2, tick3, resolve1, resolve2, resolve3
 * Node中的宏任务和微任务。
 
 ## 参考链接
-https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/
-https://github.com/yjhjstz/deep-into-node/blob/master/chapter1/chapter1-0.md
-https://segmentfault.com/a/1190000017893482#articleHeader4
-https://segmentfault.com/a/1190000017920493#articleHeader10
-https://www.jianshu.com/p/2a7ac1b3b382
-https://www.cnblogs.com/yzfdjzwl/p/8182749.html
-https://cnodejs.org/topic/57d68794cb6f605d360105bf
+1. https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/
+2. https://github.com/yjhjstz/deep-into-node/blob/master/chapter1/chapter1-0.md
+3. https://segmentfault.com/a/1190000017893482#articleHeader4
+4. https://segmentfault.com/a/1190000017920493#articleHeader10
+5. https://www.jianshu.com/p/2a7ac1b3b382
+6. https://www.cnblogs.com/yzfdjzwl/p/8182749.html
+7. https://cnodejs.org/topic/57d68794cb6f605d360105bf

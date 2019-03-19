@@ -59,6 +59,6 @@ HSTS的逻辑流程如下图：
 ![HSTS逻辑流程图](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/assets/images/security/http/Secutiry_HTTP_Headers_HSTS_2.png?raw=true)
 
 ## 参考链接
-https://www.fxw.la/news/8137.html
-https://blog.risingstack.com/node-js-security-checklist/
-https://developer.mozilla.org/zh-CN/docs/Security/HTTP_Strict_Transport_Security
+1. https://www.fxw.la/news/8137.html
+2. https://blog.risingstack.com/node-js-security-checklist/
+3. https://developer.mozilla.org/zh-CN/docs/Security/HTTP_Strict_Transport_Security
