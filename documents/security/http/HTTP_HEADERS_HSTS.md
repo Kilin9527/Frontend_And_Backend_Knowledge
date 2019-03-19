@@ -16,7 +16,8 @@
 # HTTP Strict-Transport-Security
 ## 1. 为什么要有HSTS
 在互联网早期，一般使用HTTP协议来传输数据，由于HTTP是明文传输信息，没有任何加密，这样的访问方式并不十分安全，因为在第一次HTTP请求和重定向的时候，攻击者可以以中间人的方式劫持这次请求，从而完成中间人攻击。过程如图：
-![中间人劫持攻击](../../../assets/images/security/http/Secutiry_HTTP_Headers_HSTS_1.png)
+<!-- ![中间人劫持攻击](../../../assets/images/security/http/Secutiry_HTTP_Headers_HSTS_1.png) -->
+![中间人劫持攻击](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/assets/images/security/http/Secutiry_HTTP_Headers_HSTS_1.png?raw=true)
 劫持HTTP请求，阻止建立HTTPS连接，并进行钓鱼攻击。
 第1步：浏览器发起一次明文HTTP请求，但实际上会被攻击者拦截下来。
 第2步：攻击者作为代理，把当前请求转发给钓鱼网站。
@@ -54,7 +55,8 @@ HSTS存在一个比较薄弱的环节，那就是浏览器没有当前网站的H
 ## 5. 总结
 现代网站建设应该尽量使用HTTPS类型的安全链接，通过HSTS的设置，可以让浏览器自动将HTTP类型的链接转化成HTTPS类型，HSTS必须配置的是max-age，HSTS不足是浏览器第一次与网站建立链接之前，可能会被劫持。
 HSTS的逻辑流程如下图：
-![HSTS逻辑流程图](../../../assets/images/security/http/Secutiry_HTTP_Headers_HSTS_2.png)
+<!-- ![HSTS逻辑流程图](../../../assets/images/security/http/Secutiry_HTTP_Headers_HSTS_2.png) -->
+![HSTS逻辑流程图](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/assets/images/security/http/Secutiry_HTTP_Headers_HSTS_2.png?raw=true)
 
 ## 参考链接
 https://www.fxw.la/news/8137.html
