@@ -30,7 +30,7 @@
 ## 2. 什么是HSTS
 HSTS是一种web安全策略机制。该策略的核心是一个HTTP响应头，通过这个响应同，让浏览器在一段时间内只能通过HTTPS进行访问该网站，并且在浏览器发现当前连接不安全的情况下拒绝用户的后续访问。
 
-当我们输入网站地址baidu.com后，浏览器会自动将地址变更为http://baidu.com，然后发送给服务器，服务器接收请求后发现不是一个https类型的连接，服务器返回给浏览器一个带有https类型链接的地址和一个状态码3xx，浏览器根据状态码和重定向地址访问https://baidu.com，服务器与浏览器建立链接，并返回一个响应，此时响应头中含有一个Strict-Transport-Security字段，表明该网站需要进行https类型访问，这样浏览器在以后的每次请求发出之前，都会自动将用户输入的内容转化为https开头的地址。
+当我们输入网站地址baidu.com后，浏览器会自动将地址变更为`http://baidu.com`，然后发送给服务器，服务器接收请求后发现不是一个https类型的连接，服务器返回给浏览器一个带有https类型链接的地址和一个状态码3xx，浏览器根据状态码和重定向地址访问`https://baidu.com`，服务器与浏览器建立链接，并返回一个响应，此时响应头中含有一个Strict-Transport-Security字段，表明该网站需要进行https类型访问，这样浏览器在以后的每次请求发出之前，都会自动将用户输入的内容转化为https开头的地址。
 
 ## 3. HSTS语法
 Strict-Transport-Security: max-age=<expire-time>
@@ -42,7 +42,7 @@ includeSubDomains:如果这个可选的参数被指定，那么说明此规则�
 preload:查看 Preloading Strict Transport Security 获得详情。不是标准的一部分。
 
 比如，`https://xxx.com` 的响应头含有Strict-Transport-Security: max-age=31536000; includeSubDomains。这意味着两点：
-* 在接下来的一年（即31536000秒）中，浏览器只要向xxx或其子域名发送HTTP请求时，必须采用HTTPS来发起连接。比如，用户点击超链接或在地址栏输入 http://xxx/ ，浏览器应当自动将 http 转写成 https，然后直接向 https://xxx/ 发送请求。
+* 在接下来的一年（即31536000秒）中，浏览器只要向xxx或其子域名发送HTTP请求时，必须采用HTTPS来发起连接。比如，用户点击超链接或在地址栏输入 `http://xxx/` ，浏览器应当自动将 http 转写成 https，然后直接向 `https://xxx/` 发送请求。
 * 在接下来的一年中，如果 xxx 服务器发送的TLS证书无效，用户不能忽略浏览器警告继续访问网站
 
 服务器开启HSTS的方法是，当客户端通过HTTPS发出请求时，在服务器返回的超文本传输协议响应头中包含Strict-Transport-Security字段。非加密传输时设置的HSTS字段无效。
