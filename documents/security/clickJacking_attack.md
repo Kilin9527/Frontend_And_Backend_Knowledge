@@ -42,4 +42,4 @@
 通过设置ifame标签的透明度opacity就可以完成点击劫持。
 
 ## 3. 如何避免点击劫持事件
-参考[点击劫持防御](./clickJacking_defence.md)。
+参考[点击劫持防御](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/clickJacking_defence_X-Frame-Options.md)。

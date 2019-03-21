@@ -49,4 +49,4 @@
 
 但是对于代理服务器而言，以上方法就难以见效了，因为代理服务器本来就是一个“中间人”角色，攻击者不需要进行任何欺骗就能让受害者自己连接上来，而且代理也不涉及MAC等因素，所以一般的防范措施都不起作用。遇到这种情况最好的办法就是换一个代理。
 
-另外，可以通过设置[HSTS](./manInTheMiddle_defence.md)来一定程度上避免中间人攻击。
+另外，可以通过设置[HSTS](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/manInTheMiddle_defence_Strick-Transport-Security.md)来一定程度上避免中间人攻击。
