@@ -7,7 +7,7 @@ Used to record knowledge about frontend and backend.
 
 ## Security - Defence
 #### Headers
-* [HTTP Strict-Transport-Security](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/manInTheMiddle_defence_Strick-Transport-Security.md)
+* [HTTP Strict-Transport-Security](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/http_response_header_Strick-Transport-Security.md)
 * [HTTP X-Frame-Options](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/clickJacking_defence_X-Frame-Options.md)
 * [HTTP X-XSS-Protection](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/xss_defence_X-XSS-Protection.md)
 
