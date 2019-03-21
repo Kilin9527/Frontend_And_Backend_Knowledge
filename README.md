@@ -9,10 +9,10 @@ Used to record knowledge about frontend and backend.
 #### Headers
 * [HTTP Strict-Transport-Security](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/manInTheMiddle_defence_Strick-Transport-Security.md)
 * [HTTP X-Frame-Options](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/clickJacking_defence_X-Frame-Options.md)
-* [HTTP X-XSS-Protection](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/xss_defence.md)
+* [HTTP X-XSS-Protection](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/xss_defence_X-XSS-Protection.md)
 
 ## Security - Attack
 * [ClickJacking - 点击劫持](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/clickJacking_attack.md)
-* [Man-In-The-Middle Attack 中间人攻击](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/manInTheMiddle_attack.md)
-* [XSS(Cross site script)跨站脚本](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/xss_attack.md)
+* [Man-In-The-Middle Attack - 中间人攻击](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/manInTheMiddle_attack.md)
+* [XSS(Cross site script) - 跨站脚本](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/xss_attack.md)
 
