@@ -52,7 +52,7 @@ XSS攻击是一种针web应用安全漏洞的攻击，恶意攻击者利用网�
 3、等到别的客户端请求这个留言的时候，将数据取出显示留言时将执行攻击代码，将会显示一个foolish警告窗口。
 
 ## 5. 防范措施
-参见[xss防御](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/xss_defence_X-XSS-Protection.md)一章。
+参见[xss防御](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/http_response_header_X-XSS-Protection.md)一章。
 
 
 ## 参考链接

@@ -33,7 +33,7 @@ Strict-Transport-Security是HTTP响应头中的一个字段，该字段的主要
 ## 2. Strict-Transport-Security使用方式
 在服务器的响应头中添加该字段并设置对应的值。
 ```javascript {.line-numbers}
-// 伪语法
+// 伪代码
 response.header.append({
     key: "Strict-Transport-Security", 
     value: "max-age=31536000; includeSubDomains"
@@ -41,7 +41,7 @@ response.header.append({
 ```
 
 ## 3. Strict-Transport-Security产生背景
-在互联网早期，一般使用HTTP协议来传输数据，由于HTTP是明文传输信息，没有任何加密，这样的访问方式并不十分安全，HTTP请求时可能会被中间人劫持，从而完成[中间人攻击](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/manInTheMiddle_attack.md)。
+在互联网早期，一般使用HTTP协议来传输数据，由于HTTP是明文传输信息，没有任何加密，这样的访问方式并不十分安全，HTTP请求时可能会被中间人劫持，从而完成[中间人攻击](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/attack_manInTheMiddle.md)。
 
 Strict-Transport-Security通过设置HTTP响应头，让浏览器在接下来的一段时间内只能通过HTTPS方式访问服务器，并且在浏览器发现当前连接不安全的情况下拒绝用户的后续访问。
 

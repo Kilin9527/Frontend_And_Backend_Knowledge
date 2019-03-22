@@ -6,13 +6,13 @@ Used to record knowledge about frontend and backend.
 * [Event Loop](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/node/node_event-loop.md)
 
 ## Security - Defence
-#### Headers
-* [HTTP Strict-Transport-Security](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/http_response_header_Strick-Transport-Security.md)
-* [HTTP X-Frame-Options](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/clickJacking_defence_X-Frame-Options.md)
-* [HTTP X-XSS-Protection](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/xss_defence_X-XSS-Protection.md)
+#### HTTP - Response - Headers
+* [Strict-Transport-Security](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/http_response_header_Strick-Transport-Security.md)
+* [X-Frame-Options](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/http_response_header_X-Frame-Options.md)
+* [X-XSS-Protection](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/http_response_header_X-XSS-Protection.md)
 
 ## Security - Attack
-* [ClickJacking - 点击劫持](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/clickJacking_attack.md)
-* [Man-In-The-Middle Attack - 中间人攻击](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/manInTheMiddle_attack.md)
-* [XSS(Cross site script) - 跨站脚本](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/xss_attack.md)
+* [ClickJacking - 点击劫持](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/attack_clickJacking.md)
+* [Man-In-The-Middle Attack - 中间人攻击](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/attack_manInTheMiddle.md)
+* [XSS(Cross site script) - 跨站脚本](https://github.com/Kilin9527/Frontend_And_Backend_Knowledge/blob/master/documents/security/attack_xss.md)
 
