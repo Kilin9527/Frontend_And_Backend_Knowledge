@@ -15,7 +15,7 @@
 <!-- /code_chunk_output -->
 
 # HTTP -> Response Header -> X-XSS-Protection
-X-XSS-Protection是HTTP响应头中的一个字段，该字段的主要功能是通知浏览器当发现跨站脚本时要做哪种操作。
+X-XSS-Protection是一个HTTP响应头，该响应头的主要功能是通知浏览器当发现跨站脚本时要做哪种操作。
 
 ## 1. X-XSS-Protection语法
 * X-XSS-Protection: 0

@@ -15,7 +15,7 @@
 <!-- /code_chunk_output -->
 
 # HTTP -> Response Header -> Strict-Transport-Security
-Strict-Transport-Security是HTTP响应头中的一个字段，该字段的主要功能是告诉浏览器是否只能通过HTTPS方式与服务器通信。
+Strict-Transport-Security是一个HTTP响应头，该响应头的主要功能是告诉浏览器是否只能通过HTTPS方式与服务器通信。
 
 ## 1. Strict-Transport-Security语法
 * Strict-Transport-Security: max-age=`<expire-time>`

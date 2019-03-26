@@ -14,7 +14,7 @@
 <!-- /code_chunk_output -->
 
 # HTTP -> Response Header -> X-Frame-Options
-X-Frame-Options是HTTP响应头中的一个字段，该字段的主要功能是告诉浏览器本网页是否可以在iframe中嵌套。
+X-Frame-Options是一个HTTP响应头，该响应头的主要功能是告诉浏览器本网页是否可以在iframe中嵌套。
 
 ## 1. X-Frame-Options语法
 * X-Frame-Options: DENY

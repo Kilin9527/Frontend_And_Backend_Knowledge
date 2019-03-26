@@ -14,7 +14,7 @@
 <!-- /code_chunk_output -->
 
 # HTTP - Response Header - X-Content-Type-Options
-X-Content-Type-Options是HTTP响应头中的一个字段，该字段的主要功能是告诉浏览器一定要遵循在Content-Type首部中对MIME类型的设定，而不能对其进行修改。
+X-Content-Type-Options是一个HTTP响应头，该响应头的主要功能是告诉浏览器一定要遵循在Content-Type首部中对MIME类型的设定，而不能对其进行修改。
 
 ## 1. X-Content-Type-Options语法
 * X-Content-Type-Options: nosniff
