@@ -3,11 +3,16 @@
 
 <!-- code_chunk_output -->
 
-* [1. 接口初探](#1-接口初探)
-* [2. 可选属性](#2-可选属性)
-* [2. 只读属性](#2-只读属性)
-	* [readonly vs const](#readonly-vs-const)
-* [3. 额外的属性检查](#3-额外的属性检查)
+- [1. 接口初探](#1-接口初探)
+- [2. 可选属性](#2-可选属性)
+- [2. 只读属性](#2-只读属性)
+  - [readonly vs const](#readonly-vs-const)
+- [3. 额外的属性检查](#3-额外的属性检查)
+- [函数类型](#函数类型)
+- [可索引的类型](#可索引的类型)
+- [类类型](#类类型)
+- [继承接口](#继承接口)
+- [混合类型](#混合类型)
 
 <!-- /code_chunk_output -->
 TypeScript的核心原则之一是对值所具有的结构进行类型检查。
@@ -83,3 +88,63 @@ let mySquare = createSquare({ width: 100, opacity: 0.5 } as SquareConfig);
 let squareOptions = { colour: "red", width: 100 };
 let mySquare = createSquare(squareOptions);
 ```
+### 函数类型
+接口除了可以描述带有属性的普通对象外，也可以描述函数类型。
+
+它就像是一个只有参数列表和返回值类型的函数定义。参数列表里的每个参数都需要名字和类型。
+```typescript
+// 定义
+interface SearchFunc{
+    (source: string, subString: string): boolean;
+}
+
+// 使用
+let mySearch: SearchFunc;
+mySearch = function(src, sub) {
+  let result = src.search(sub);
+  return result > -1;
+}
+```
+函数的参数名可以不与接口里定义的名字相匹配。
+函数的参数类型可以不与接口里定义的类型相匹配，TypeScript的类型系统会推断出参数类型。
+函数的返回值类型也可以不与接口里定义的类型相匹配，TypeScript的类型系统会推断出返回值类型。
+
+### 可索引的类型
+TypeScript支持两种索引签名：字符串和数字。
+可以同时使用两种类型的索引，但是数字索引的返回值必须是字符串索引返回值类型的子类型。 
+
+### 类类型
+TypeScript用接口来明确的强制一个类去符合某种契约。
+
+### 继承接口
+接口可以相互继承。
+
+一个接口可以继承多个接口，创建出多个接口的合成接口。
+
+### 混合类型
+接口能够描述JavaScript里丰富的类型。 因为JavaScript其动态灵活的特点，有时你会希望一个对象可以同时做为函数和对象使用，并带有额外的属性。
+```typescript
+interface Counter {
+    (start: number): string;
+    interval: number;
+    reset(): void;
+}
+
+function getCounter(): Counter {
+    let counter = <Counter>function (start: number) { };
+    counter.interval = 123;
+    counter.reset = function () { };
+    return counter;
+}
+
+let c = getCounter();
+// 作为函数使用
+c(10);
+// 作为对象使用
+c.reset();
+// 并带有额外的属性
+c.interval = 5.0;
+```
+
+### 接口继承类
+无法理解该部分内容。
