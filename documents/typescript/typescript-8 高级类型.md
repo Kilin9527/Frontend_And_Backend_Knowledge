@@ -94,7 +94,7 @@ function isFish(pet: Fish | Bird): pet is Fish {
 if (isFish(pet)) {
     pet.swim();
 }
-else {
+else {Frontend_And_Backend_Knowledge
     pet.fly();
 }
 ```
@@ -256,20 +256,4 @@ interface Map<T> {
 }
 let keys: keyof Map<number>; // string
 let value: Map<number>['foo']; // number
-```
-```TypeScript
-```
-```TypeScript
-```
-```TypeScript
-```
-```TypeScript
-```
-```TypeScript
-```
-```TypeScript
-```
-```TypeScript
-```
-```TypeScript
 ```
